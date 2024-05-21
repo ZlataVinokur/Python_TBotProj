@@ -1,7 +1,11 @@
 from random import choice
+from anekdot import anekdots
 
 with open('words.txt', 'r', encoding='utf-8') as f:
     WORDS = [line.strip().lower() for line in f.readlines()]
+
+with open('words_dif.txt', 'r', encoding='utf-8') as f:
+    WORDSDIF = [line.strip().lower() for line in f.readlines()]
 
 class HangmanGame:
     def __init__(self):
@@ -14,6 +18,16 @@ class HangmanGame:
         self.so_far = ['_'] * len(self.word)
         self.wrong = 0
         self.max_wrong = len(HANGMANPICS) - 1
+        self.anekdot = choice(anekdots)
+
+    def startDif(self):
+        self.game_on = True
+        self.used = []
+        self.word = choice(WORDSDIF)
+        self.so_far = ['_'] * len(self.word)
+        self.wrong = 0
+        self.max_wrong = len(HANGMANPICS) - 1
+        self.anekdot = choice(anekdots)
 
     def info(self):
         msg = HANGMANPICS[self.wrong]
@@ -34,7 +48,8 @@ class HangmanGame:
                 for indx in indxs:
                     self.so_far[indx] = letter
                 if self.so_far.count('_') == 0:
-                    msg += f'\n Вау, вы угадали все буквы слова {self.word}'
+                    congrats = f'\nВау, вы угадали все буквы слова {self.word} \nВаша награда этот анекдот:\n {self.anekdot}'
+                    msg += congrats
                     self.game_on = False
                 else:
                     msg += self.info()
@@ -44,7 +59,7 @@ class HangmanGame:
                 self.wrong += 1
                 if self.wrong >= self.max_wrong:
                     msg += HANGMANPICS[self.max_wrong]
-                    msg = '\n Вас повесили('
+                    msg = '\n Вас повесили( \n И вы не получите анекдот((('
                     msg += f' \n Правильный ответ: {self.word}'
                     self.game_on = False
                 else:
