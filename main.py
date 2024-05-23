@@ -8,10 +8,11 @@ TOKEN = '7189414261:AAEdRog7x5q14lxsFcGy_tCwrzVK5u2iTfA'
 bot = TeleBot(TOKEN)
 
 hg = HangmanGame()
+anekdot = random.choice(anekdots)
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    answer = f'<b>Привет! Сыграе,</b><u>{message.from_user.first_name}?</u>' \
+    answer = f'<b>Привет! Сыграем,</b><u>{message.from_user.first_name}?</u>' \
              '\nЕсли хочешь сыграть в виселицу и при выйгрыше получить анекдот (за качество ответственности не несу), напиши "висилеца"' \
              '\nЕсли анекдот хочешь, но виселица это слишком сложно, напиши "ножницы"'
     bot.send_message(message.chat.id, text=answer, parse_mode='html')
@@ -19,8 +20,12 @@ def start(message):
 @bot.message_handler()
 def on_message(message):
     if hg.game_on:
-        if len(message.text) > 1:
-            bot.send_message(message.chat.id, text='Вводить можно только буквы')
+        if len(message.text) > 1 and message.text!=hg.word:
+            bot.send_message(message.chat.id, text='Вводить можно только буквы или слово полностью')
+            return
+        elif message.text==hg.word:
+            hg.game_on = False
+            bot.send_message(message.chat.id, text=f'\nВау, вы угадали все буквы слова {hg.word} \nВаша награда этот анекдот:\n {anekdot}')
             return
         msg = hg.game_step(message.text)
         bot.send_message(message.chat.id, text=msg)
@@ -49,7 +54,6 @@ def on_message(message):
 def callback(call):
     city_list = ['Камень', 'Ножницы', 'Бумага']
     kgb = random.choice(city_list)
-    anekdot = random.choice(anekdots)
 
     if call.message:
         if call.data == 'question_1':
